@@ -1,0 +1,33 @@
+version: '3'
+services: 
+  mongodb:
+    build: 
+      dockerfile: Dockerfile
+      context: ./db
+    restart: always
+    networks: 
+      - shoppers
+
+  node-server:
+    build: 
+      dockerfile: Dockerfile
+      context: ./server
+    depends_on: 
+      - mongodb
+    restart: always
+    ports: 
+      - "8000:8000"
+    volumes: 
+      - ./server:/usr/app
+      - /usr/app/node_modules
+    command: npm run dev
+    environment: 
+      DB_USER: admin
+      DB_PASSWORD: 222
+      DB_HOST: mongodb
+      DB_NAME: shoppers
+    networks: 
+      - shoppers
+
+networks: 
+  shoppers:

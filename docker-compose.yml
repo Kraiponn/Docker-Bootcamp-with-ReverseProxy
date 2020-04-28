@@ -1,0 +1,50 @@
+# password: 999, path: /var/lib/mysql
+# wordpress: /var/www/html
+# nginx -s reload
+
+version: '3.1'
+
+services:
+
+  mysql_c:
+    image: mysql:5.7
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: 9999999
+    volumes:
+      - mysql_volume:/var/lib/mysql
+    networks: 
+      - wordpress
+
+  wp_c:
+    image: wordpress
+    depends_on:
+      - mysql_c
+    restart: always
+    ports:
+      - 888:80
+    environment:
+      WORDPRESS_DB_HOST: mysql_c
+      WORDPRESS_DB_USER: root
+      WORDPRESS_DB_PASSWORD: 9999999
+    volumes:
+      - wp_volume:/var/www/html
+    networks: 
+      - wordpress
+  
+  web_proxy:
+    image: nginx
+    depends_on: 
+      - wp_c
+    restart: always
+    ports: 
+      - 80:80
+    networks: 
+      - wordpress
+
+volumes:
+  wp_volume:
+  mysql_volume:
+
+networks: 
+  wordpress:

@@ -1,0 +1,63 @@
+
+        MySql root path
+- /var/lib/mysql 
+- Environment :: MYSQL_ROOT_PASSWORD
+
+        Wordpress 
+- /var/www/html
+- Environment 
+  -e WORDPRESS_DB_HOST=mysql `
+  -e WORDPRESS_DB_USER=root `
+  -e WORDPRESS_DB_PASSWORD=111111 `
+
+        PHP MYADMIN
+- Environment :: PMA_ARBITRARY=1
+
+*******************************************************
+        EP3
+1# docker pull mysql
+2# docker pull wordpress
+3# docker pull phpmyadmin/phpmyadmin
+4# docker run --name mysql-db -v Q:/sharevolume/mysql:/var/lib/mysql -e MYSQL_ROOT_PASSWORD=111111 -d mysql
+
+#5
+docker run -d --name docker-press -p 80:80 --link mysql-db:mysql `
+-v Q:/sharevolume/wordpress:/var/www/html `
+-e WORDPRESS_DB_HOST=mysql `
+-e WORDPRESS_DB_USER=root `
+-e WORDPRESS_DB_PASSWORD=111111 `
+ wordpress 
+
+#6
+docker run --name pma -d --link mysql-db:db -p 8888:80 -e PMA_ARBITRARY=1 phpmyadmin/phpmyadmin
+
+***********************************************************
+      EP4
+# docker run --name mysql-db -v Q:/sharevolume/mysql:/var/lib/mysql -e MYSQL_ROOT_PASSWORD=111111 -d mysql
+
+# docker run -d --name docker-press --link mysql-db:mysql `
+-v Q:/sharevolume/wordpress:/var/www/html `
+-e WORDPRESS_DB_HOST=mysql `
+-e WORDPRESS_DB_USER=root `
+-e WORDPRESS_DB_PASSWORD=111111 `
+ wordpress 
+
+# docker run -d --name webproxy -p 80:80 --link docker-press:wordpress nginx
+1# docker exec -it webproxy bash
+  #1.1 apt-get install vim
+
+2# edit /etc/nginx/nginx.conf
+-----------------------
+servername myweb.dev www.myweb.dev;
+-----------------------
+location / {
+  proxy_pass http://wordpress/;
+  proxy_set_header X-Forwarded-Host $host;
+  proxy_set_header X-Forwarded-Proto $scheme;
+}
+
+2.1# nginx -s reload
+
+- docker run -d --name wp_c --network wordpress -v wp_volume:/var/www/html -p 888:80 -e WORDPRESS_DB_HOST=mysql_c -e WORDPRESS_DB_USER=root -e 
+WORDPRESS_DB_PASSWORD=9999999 wordpress
+
